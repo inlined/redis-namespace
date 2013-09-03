@@ -317,7 +317,9 @@ class Redis
       result = @redis.send(command, *args, &block)
 
       # Don't try to remove namespace from a Redis::Future, you can't.
-      return result if result.is_a?(Redis::Future)
+      # Redis 3.0 removes is_a? from Future, so resque ensures that
+      # we generically return result if we can't remove namesapces
+      return result if (result.is_a?(Redis::Future) rescue true)
 
       # Remove the namespace from results that are keys.
       case after
